@@ -1,0 +1,27 @@
+{
+  "name": "wishlist-app-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/J-Vega/wishlist-app-api.git"
+  },
+  "author": "Jonathan Vega",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/J-Vega/wishlist-app-api/issues"
+  },
+  "homepage": "https://github.com/J-Vega/wishlist-app-api#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "express": "^4.16.4",
+    "mocha": "^5.2.0",
+    "mongoose": "^5.3.6"
+  }
+}
