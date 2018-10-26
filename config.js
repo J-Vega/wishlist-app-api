@@ -14,4 +14,4 @@ exports.JWT_SECRET = 'a'; //Key used to create encrypted pw
 exports.JWT_EXPIRY = '7d';
 //Reference - Google pw salt - gives random 64 bit character string
 
-exports.PORT = process.env.PORT || 3000;
+exports.PORT = process.env.PORT || 3001;
