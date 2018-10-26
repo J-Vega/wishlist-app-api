@@ -65,7 +65,7 @@ productListingSchema.methods.serialize = function(){
     price: this.price,
     link: this.link,
     imageUrl: this.imageUrl,
-    comment: this.link
+    comment: this.comment
   };
 };
 
