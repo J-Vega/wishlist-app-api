@@ -19,6 +19,7 @@ const app = express();
 app.use(morgan("common"));
 app.use(express.static('public'));
 
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 const { PORT, DATABASE_URL, TEST_DATABASE_URL} = require('./config');
 
@@ -317,12 +318,40 @@ app.get("/Wishlist", (req, res) => {
     });
 });
 
+//GET one wishlist by ID
+app.get("/Wishlist/:id", cors(), (req, res) => {
+  //example for local host on postman - localhost:3001/WishList/5bc9159de7ca5e3acae4cbc1
+  UserWishLists
+    .findById(req.params.id)
+    .exec() 
+    .then(data => {
+      return res.json(data);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ message: 'Internal server error' });
+    });
+});
+
+//GET all wishlists from one user
+app.get("/Wishlist/:userName", cors(), (req, res) => {
+  //example for local host on postman - localhost:3001/WishList/?userName=abcd1234
+  UserWishLists
+    .find({"user":{$elemMatch:{creator:req.params.userName}}})
+    .exec()
+    .then(data => {    
+      console.log("Sucessfully located wishlist by user name.")
+      return res.json(data);
+    })
+    .catch(err => {
+      return res.status(500).json({ message: 'Internal server error when finding user wishlist' });
+    });
+});
+
 app.post("/Wishlist", jsonParser, (req, res) => {
   console.log(req.body);
   const requiredFields = ['user', 'category', 'item', 'imageUrl'];
-  // console.log(req.body.user);
-  // console.log(req.body.category);
-  // console.log(req.body.item);
+
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -372,16 +401,33 @@ app.put("/Wishlist/:id", jsonParser, (req, res) => {
     }
   });
 
-  UserWishLists.findByIdAndUpdate(req.params.id, {$push : {"items": {"name":`${name}`,"price":`${price}`,"link":`${link}`}  }})//{"content":"Comment","created":"JVEGA"}}})//,creator: }})//,{$push: {comments:"This is a comment pushed via mongo shell"}} )//req.params.id,{ $push: {comments:"N"}})
+  UserWishLists.findByIdAndUpdate(req.params.id, {$push : {"items": req.body }})//{"content":"Comment","created":"JVEGA"}}})//,creator: }})//,{$push: {comments:"This is a comment pushed via mongo shell"}} )//req.params.id,{ $push: {comments:"N"}})
   .then(phoneNumber => res.status(204).end())
   .catch(err => res.status(500).json({ message: err })); 
 })
 
+//Delete an entire category
 app.delete('/Wishlist/:id', (req, res) => {
   UserWishLists
     .findByIdAndRemove(req.params.id)
     .then(listing => res.status(204).end())
     .catch(err => res.status(500).json({message: "Error deleting listing"}));
+});
+
+//Delete a single item from a category
+app.delete('/Wishlist/:id/Item/:itemId', (req, res) => {
+  console.log("Deleting item from category");
+  UserWishLists
+    .findByIdAndUpdate(
+      req.params.id,
+      {$pull:{"items" : {"_id":req.params.itemId}}},
+      {"new":true})
+    .then(listing => res.status(204).end())
+    .catch(err => res.status(500).json({message: "Error deleting listing"}));
+});
+
+app.use('*', (req, res) => {
+  return res.status(404).json({ message: 'Not Found' });
 });
 
 let server;
