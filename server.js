@@ -15,20 +15,29 @@ const {localStrategy,jwtStrategy} = require('./auth/strategies.js');
 const authRoute = require('./auth/router.js');
 
 const app = express();
-
+app.use(cors());
 app.use(morgan("common"));
 app.use(express.static('public'));
 
-const jwtAuth = passport.authenticate('jwt', { session: false });
+passport.use('localAuth',localStrategy);
+passport.use('jwtAuth',jwtStrategy);
+
+//Tells express you want to use passport
+app.use(passport.initialize());
+app.use(bodyParser.json());
+
+// const jwtAuth = passport.authenticate('jwt', { session: false });
 
 const { PORT, DATABASE_URL, TEST_DATABASE_URL} = require('./config');
+
+app.use('/auth',function(req,res,next){ console.log(req.body); next()},authRoute);
 
 //Not yet
 const {UserProfiles, UserWishLists, ProductListing} = require('./models');
 
 var ObjectId = require('mongodb').ObjectId;
 
-app.use(cors());
+
 app.use(function (req, res, next) {
     
     // Website you wish to allow to connect
@@ -52,6 +61,8 @@ app.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
+
+
 
 //https://api.walmartlabs.com/v1/search?query=ipod&format=json&apiKey=cwd2qzamfg6f523deuwhuxec
 
@@ -168,6 +179,7 @@ app.get("/Users", (req, res) => {
 });
 
 app.post('/Users', jsonParser, (req, res) => {
+  console.log("Registering user.");
 	console.log(req.body);
   const requiredFields = ['userName', 'password', 'firstName', 'lastName', 'email'];
   const missingField = requiredFields.find(field => !(field in req.body));
