@@ -74,9 +74,6 @@ app.get("/Walmart/Listings/", cors(), (req, res, body) => {
 	console.log("Running get request from walmart API");
 	//console.log(res);
 	const query = req.query.searchTerm;
-	console.log("Searching for: " + query);
-	console.log(req.query.searchTerm);
-	console.log(req.params.searchTerm);
 	const options = {
 		method: 'GET',
 		uri: `https://api.walmartlabs.com/v1/search?query=${query}&format=json&apiKey=cwd2qzamfg6f523deuwhuxec&numItems=10`,
