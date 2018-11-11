@@ -162,7 +162,6 @@ app.get("/Etsy/Listing/Images/", cors(), (req, res, body) => {
 });
 
 app.get("/Users", (req, res) => {
-
   UserProfiles
     .find()
     .exec() 
@@ -343,10 +342,28 @@ app.get("/Wishlist/:id", cors(), (req, res) => {
 });
 
 //GET all wishlists from one user
-app.get("/Wishlist/:userName", cors(), (req, res) => {
+app.get("/Wishlist/User/:userName", cors(), (req, res) => {
   //example for local host on postman - localhost:3001/WishList/?userName=abcd1234
   UserWishLists
-    .find({"user":{$elemMatch:{creator:req.params.userName}}})
+    .find({"user":req.params.userName})
+    .exec()
+    .then(data => {    
+      console.log("Sucessfully located wishlist by user name.")
+      return res.json(data);
+    })
+    .catch(err => {
+      return res.status(500).json({ message: 'Internal server error when finding user wishlist' });
+    });
+});
+
+//Find user wishlists within one category
+app.get("/Wishlist/User/:userName/:category", cors(), (req, res) => {
+  //example for local host on postman - localhost:3001/WishList/?userName=abcd1234
+  UserWishLists
+    .find({
+      "user":req.params.userName,
+      "category":req.params.category
+    })
     .exec()
     .then(data => {    
       console.log("Sucessfully located wishlist by user name.")
@@ -359,7 +376,7 @@ app.get("/Wishlist/:userName", cors(), (req, res) => {
 
 app.post("/Wishlist", jsonParser, (req, res) => {
   console.log(req.body);
-  const requiredFields = ['user', 'category', 'item', 'imageUrl'];
+  const requiredFields = ['user', 'category','item'];
 
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -372,8 +389,11 @@ app.post("/Wishlist", jsonParser, (req, res) => {
   UserWishLists
     .create({
       user: req.body.user,
-      category: req.body.category,
-      item: req.body.item
+      items: {
+        "category":req.body.category,
+        "item":req.body.item
+      }
+      
     })
     .then(listing => res.status(201).json(listing))
     .catch(err => {
@@ -396,7 +416,7 @@ app.put("/Wishlist/:id", jsonParser, (req, res) => {
   }
 
   
-  const requiredFields = ['name','price', 'link', 'imageUrl'];
+  const requiredFields = ['category', 'name','price', 'link', 'imageUrl'];
   let name = req.body.name;
   let price = req.body.price;
   let link = req.body.link;
@@ -414,6 +434,51 @@ app.put("/Wishlist/:id", jsonParser, (req, res) => {
   .then(phoneNumber => res.status(204).end())
   .catch(err => res.status(500).json({ message: err })); 
 })
+
+app.put("/Wishlist/User/:userName/:category", jsonParser, (req, res) => {
+
+  const requiredFields = ['category', 'name','price', 'link', 'imageUrl'];
+  let name = req.body.name;
+  let price = req.body.price;
+  let link = req.body.link;
+  let imageUrl = req.body.imageUrl;
+
+  requiredFields.forEach(field => {
+    if(!(field in req.body)){
+      const message = `Missing \`${field}\` in request body`;
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  });
+  let itemBody = {
+    
+      "category": req.params.category,
+      "item": {
+        "name": req.params.name,
+        "price": req.params.price,
+        "link": req.params.link,
+        "imageUrl": req.params.imageUrl
+      
+    }
+  }
+  UserWishLists.findOneAndUpdate({
+    "user":req.params.userName,
+    "category":req.params.category
+  },  
+  {$push : 
+    {"item": itemBody }}
+  )
+  .then(response => res.status(201).json({newItem: response}).end())
+  .catch(err => res.status(500).json({ message: err })); 
+})
+
+//Delete a user
+app.delete('/Users/:id', (req, res) => {
+  UserProfiles
+    .findByIdAndRemove(req.params.id)
+    .then(listing => res.status(204).end())
+    .catch(err => res.status(500).json({message: "Error deleting user"}));
+});
 
 //Delete an entire category
 app.delete('/Wishlist/:id', (req, res) => {

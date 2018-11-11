@@ -4,7 +4,7 @@ exports.DATABASE_URL =
 	process.env.DATABASE_URL || 'mongodb://testuser:abc123@ds135003.mlab.com:35003/fullstack-capstone'; 
 
 exports.TEST_DATABASE_URL = 
-	process.env.TEST_DATABASE_URL || 'mongodb://testuser:abc123@ds135003.mlab.com:35003/fullstack-capstone';
+	process.env.TEST_DATABASE_URL || 'mongodb://abc123:abc123@ds135433.mlab.com:35433/test-fullstone-capstone';
 
 exports.CLIENT_ORIGIN =
 	process.env.CLIENT_ORIGIN || '*';
