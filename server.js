@@ -362,7 +362,7 @@ app.get("/Wishlist/User/:userName/:category", cors(), (req, res) => {
   UserWishLists
     .find({
       "user":req.params.userName,
-      "category":req.params.category
+      "wishlists.category":req.params.category
     })
     .exec()
     .then(data => {    
@@ -389,9 +389,9 @@ app.post("/Wishlist", jsonParser, (req, res) => {
   UserWishLists
     .create({
       user: req.body.user,
-      items: {
+      wishlists: {
         "category":req.body.category,
-        "item":req.body.item
+        "items":req.body.item
       }
       
     })
@@ -430,8 +430,8 @@ app.put("/Wishlist/:id", jsonParser, (req, res) => {
     }
   });
 
-  UserWishLists.findByIdAndUpdate(req.params.id, {$push : {"items": req.body }})//{"content":"Comment","created":"JVEGA"}}})//,creator: }})//,{$push: {comments:"This is a comment pushed via mongo shell"}} )//req.params.id,{ $push: {comments:"N"}})
-  .then(phoneNumber => res.status(204).end())
+  UserWishLists.findByIdAndUpdate(req.params.id, {$push : {"wishlists.items": req.body }})//{"content":"Comment","created":"JVEGA"}}})//,creator: }})//,{$push: {comments:"This is a comment pushed via mongo shell"}} )//req.params.id,{ $push: {comments:"N"}})
+  .then(response => res.status(201).json({Message:`New item added via wishlist id`}).end())
   .catch(err => res.status(500).json({ message: err })); 
 })
 
@@ -450,25 +450,26 @@ app.put("/Wishlist/User/:userName/:category", jsonParser, (req, res) => {
       return res.status(400).send(message);
     }
   });
-  let itemBody = {
+  let item = {
     
-      "category": req.params.category,
-      "item": {
-        "name": req.params.name,
-        "price": req.params.price,
-        "link": req.params.link,
-        "imageUrl": req.params.imageUrl
       
-    }
+ 
+        "name": req.body.name,
+        "price": req.body.price,
+        "link": req.body.link,
+        "imageUrl": req.body.imageUrl
+      
+    
   }
   UserWishLists.findOneAndUpdate({
     "user":req.params.userName,
-    "category":req.params.category
+    "wishlists.category":req.params.category
   },  
   {$push : 
-    {"item": itemBody }}
+    {"wishlists.items": item }},
+    {upsert:true},
   )
-  .then(response => res.status(201).json({newItem: response}).end())
+  .then(response => res.status(201).end())
   .catch(err => res.status(500).json({ message: err })); 
 })
 
@@ -494,7 +495,7 @@ app.delete('/Wishlist/:id/Item/:itemId', (req, res) => {
   UserWishLists
     .findByIdAndUpdate(
       req.params.id,
-      {$pull:{"items" : {"_id":req.params.itemId}}},
+      {$pull:{"wishlists" : {"_id":req.params.itemId}}},
       {"new":true})
     .then(listing => res.status(204).end())
     .catch(err => res.status(500).json({message: "Error deleting listing"}));

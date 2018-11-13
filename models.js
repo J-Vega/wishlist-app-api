@@ -24,9 +24,9 @@ const userWishListSchema = mongoose.Schema({
     // category: {
     //     type: String, required: true
     // },
-    items: {
+    wishlists: {
         category:{type: String, required: true},
-        item:[productListingSchema]
+        items:[productListingSchema]
     },
     created: {type: Date, required:true, default: Date.now}
 
@@ -59,7 +59,7 @@ userWishListSchema.methods.serialize = function(){
   return{
     id: this._id,
     user: this.user,
-    items: this.items,
+    wishlists: this.items,
     created: this.created
   };
 };
