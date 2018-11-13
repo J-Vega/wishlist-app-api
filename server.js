@@ -489,13 +489,27 @@ app.delete('/Wishlist/:id', (req, res) => {
     .catch(err => res.status(500).json({message: "Error deleting listing"}));
 });
 
-//Delete a single item from a category
+//Delete a single item using ID's
 app.delete('/Wishlist/:id/Item/:itemId', (req, res) => {
   console.log("Deleting item from category");
   UserWishLists
     .findByIdAndUpdate(
       req.params.id,
       {$pull:{"wishlists" : {"_id":req.params.itemId}}},
+      {"new":true})
+    .then(listing => res.status(204).end())
+    .catch(err => res.status(500).json({message: "Error deleting listing"}));
+});
+
+//Delete a single item using category name and item name
+app.delete('/Wishlist/User/:userName/Category/:category/Item/:itemName', (req, res) => {
+  console.log("Deleting item from category");
+  UserWishLists
+    .findOneAndUpdate({
+      "user":req.params.userName,
+      "wishlists.category":req.params.category
+    },
+    {$pull:{"wishlists.items" : {"name":req.params.itemName}}},
       {"new":true})
     .then(listing => res.status(204).end())
     .catch(err => res.status(500).json({message: "Error deleting listing"}));
