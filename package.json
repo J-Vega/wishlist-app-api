@@ -24,6 +24,7 @@
     "chai-http": "^4.2.0",
     "cors": "^2.8.4",
     "express": "^4.16.4",
+    "jsonwebtoken": "^8.2.0",
     "mocha": "^5.2.0",
     "mongoose": "^5.3.6",
     "morgan": "^1.9.1",

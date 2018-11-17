@@ -20,7 +20,7 @@ app.use(morgan("common"));
 app.use(express.static('public'));
 
 passport.use('localAuth',localStrategy);
-passport.use('jwtAuth',jwtStrategy);
+passport.use(jwtStrategy);
 
 //Tells express you want to use passport
 app.use(passport.initialize());
@@ -122,7 +122,7 @@ app.get("/Etsy/Listings/", cors(), (req, res, body) => {
 	console.log(req.params.searchTerm);
 	const options = {
 		method: 'GET',
-		uri: `https://openapi.etsy.com/v2/listings/active/?api_key=oww1hu2f71dd0rs83ba669i5&keywords=${query}&limit=12`,
+		uri: `https://openapi.etsy.com/v2/listings/active/?api_key=oww1hu2f71dd0rs83ba669i5&keywords=${query}&limit=5`,
 	    json: true
 	}
 	request(options)
