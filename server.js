@@ -481,7 +481,7 @@ app.delete('/Users/:id', (req, res) => {
     .catch(err => res.status(500).json({message: "Error deleting user"}));
 });
 
-//Delete an entire category
+//Delete an entire category by ID
 app.delete('/Wishlist/:id', (req, res) => {
   UserWishLists
     .findByIdAndRemove(req.params.id)
@@ -499,6 +499,18 @@ app.delete('/Wishlist/:id/Item/:itemId', (req, res) => {
       {"new":true})
     .then(listing => res.status(204).end())
     .catch(err => res.status(500).json({message: "Error deleting listing"}));
+});
+
+//Delete entire category using username and category 
+app.delete('/Wishlist/User/:userName/Category/:category/', (req, res) => {
+  console.log(`Deleting entire category ${req.params.category}`);
+  UserWishLists
+    .deleteOne({
+      "user":req.params.userName,
+      "wishlists.category":req.params.category
+    })
+    .then(listing => res.status(204).end())
+    .catch(err => res.status(500).json({message: "Error deleting entire category"}));
 });
 
 //Delete a single item using category name and item name
